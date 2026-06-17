@@ -1,5 +1,6 @@
 package com.videoStream.AuthService.controller;
 
+import com.videoStream.AuthService.dto.ApiResponse;
 import com.videoStream.AuthService.dto.AuthDto.*;
 import com.videoStream.AuthService.model.User;
 import com.videoStream.AuthService.repository.UserRepository;
@@ -26,10 +27,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Username is already taken!"));
+            return ResponseEntity.badRequest().body(ApiResponse.error("Username is already taken!"));
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email is already registered!"));
+            return ResponseEntity.badRequest().body(ApiResponse.error("Email is already registered!"));
         }
 
         User user = User.builder()
@@ -39,7 +40,7 @@ public class AuthController {
                 .build();
 
         userRepository.save(user);
-        return ResponseEntity.ok(Map.of("message", "User registered successfully"));
+        return ResponseEntity.ok(ApiResponse.success("User registered successfully", null));
     }
 
     @PostMapping("/login")
@@ -48,14 +49,14 @@ public class AuthController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
+            return ResponseEntity.status(401).body(ApiResponse.error("Invalid credentials"));
         }
 
         String token = jwtUtils.generateToken(user.getUsername());
         AuthResponse response = new AuthResponse();
         response.setToken(token);
         response.setUsername(user.getUsername());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 
     @GetMapping("/validate")
@@ -63,8 +64,9 @@ public class AuthController {
         boolean isValid = jwtUtils.validateToken(token);
         if (isValid) {
             String username = jwtUtils.getUsernameFromToken(token);
-            return ResponseEntity.ok(Map.of("valid", true, "username", username));
+            return ResponseEntity
+                    .ok(ApiResponse.success("Token is valid", Map.of("valid", true, "username", username)));
         }
-        return ResponseEntity.status(401).body(Map.of("valid", false));
+        return ResponseEntity.status(401).body(ApiResponse.error("Token is invalid"));
     }
 }

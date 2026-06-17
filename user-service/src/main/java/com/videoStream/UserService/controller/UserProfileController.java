@@ -1,5 +1,6 @@
 package com.videoStream.UserService.controller;
 
+import com.videoStream.UserService.dto.ApiResponse;
 import com.videoStream.UserService.model.UserProfile;
 import com.videoStream.UserService.repository.UserProfileRepository;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ public class UserProfileController {
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<UserProfile> getProfile(@PathVariable String username) {
+    public ResponseEntity<ApiResponse<UserProfile>> getProfile(@PathVariable String username) {
         UserProfile profile = userProfileRepository.findByUsername(username)
                 .orElseGet(() -> {
                     // Create default profile if not exists
@@ -28,11 +29,11 @@ public class UserProfileController {
                             .build();
                     return userProfileRepository.save(newProfile);
                 });
-        return ResponseEntity.ok(profile);
+        return ResponseEntity.ok(ApiResponse.success("Profile fetched successfully", profile));
     }
 
     @PutMapping("/{username}")
-    public ResponseEntity<UserProfile> updateProfile(@PathVariable String username, @RequestBody UserProfile profileDetails) {
+    public ResponseEntity<ApiResponse<UserProfile>> updateProfile(@PathVariable String username, @RequestBody UserProfile profileDetails) {
         UserProfile profile = userProfileRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
 
@@ -40,6 +41,6 @@ public class UserProfileController {
         profile.setBio(profileDetails.getBio());
 
         UserProfile updatedProfile = userProfileRepository.save(profile);
-        return ResponseEntity.ok(updatedProfile);
+        return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", updatedProfile));
     }
 }
