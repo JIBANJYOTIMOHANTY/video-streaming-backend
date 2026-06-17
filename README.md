@@ -10,7 +10,7 @@ The backend is built as a distributed microservices system using **Spring Boot**
 
 ```mermaid
 graph TD
-    Client[Angular Client] -->|HTTP Requests| Gateway[API Gateway - Port 8080]
+    Client[Angular Client] -->|HTTP Requests| Gateway[API Gateway - Port 8082]
     Gateway -->|Route & Auth check| AuthService[Auth Service - Port 8081]
     Gateway -->|User Profiles| UserService[User Service - Port 8083]
     Gateway -->|Video Catalog| VideoService[Video Service - Port 8084]
@@ -33,10 +33,11 @@ graph TD
 - **Java Version:** 21
 - **Framework:** Spring Boot 4.x / Spring Cloud (Release Train `2025.1.2`)
 - **Service Discovery:** Netflix Eureka Server
-- **Routing & Gateway:** Spring Cloud Gateway
+- **Routing & Gateway:** Spring Cloud Gateway MVC
 - **Security:** Spring Security & JWT (JSON Web Tokens)
 - **Data Persistence:** Spring Data JPA, PostgreSQL
 - **Build Tool:** Maven
+- **Documentation:** OpenAPI/Swagger (Springdoc)
 
 ---
 
@@ -46,14 +47,14 @@ Every microservice is a standalone Maven module located under the `backend/` dir
 
 | Service | Port | Description | Primary Dependencies |
 | :--- | :--- | :--- | :--- |
-| **`eureka-server`** | `8761` | Service Registry where all microservices register themselves for discovery. | `spring-cloud-starter-netflix-eureka-server` |
-| **`api-gateway`** | `8080` | Entry point for the frontend clients. Handles cross-origin requests, routing, rate limiting, and request forwarding. | `spring-cloud-starter-gateway`, `eureka-client` |
-| **`auth-service`** | `8081` | Handles user registration, authentication, token validation, and password hashing. | `spring-boot-starter-security`, `jjwt`, `postgresql` |
+| **`eureka-server`** | `8761` | Service Registry where all microservices register themselves. | `spring-cloud-starter-netflix-eureka-server` |
+| **`api-gateway`** | `8082` | Entry point for clients. Handles routing, CORS, and Swagger aggregation. | `spring-cloud-starter-gateway-server-webmvc` |
+| **`auth-service`** | `8081` | Handles user registration, login, JWT validation, and hashing. | `spring-boot-starter-security`, `jjwt`, `postgresql` |
 | **`user-service`** | `8083` | Manages user profiles, custom channels, and subscriber lists. | `spring-boot-starter-data-jpa`, `postgresql` |
-| **`video-service`** | `8084` | Manages video catalogs, categories, titles, search indexes, and metadata. | `spring-boot-starter-data-jpa`, `postgresql` |
-| **`upload-service`** | `8085` | Handles large file chunk uploads, triggers video processing/transcoding, and saves video binaries. | `spring-boot-starter-web`, `eureka-client` |
-| **`streaming-service`** | `8086` | Provides adaptive streaming endpoints (HLS/DASH/MP4 serving) for low latency video playback. | `spring-boot-starter-web`, `eureka-client` |
-| **`analytics-service`** | `8087` | Tracks views, watch durations, likes, comments, and engagement analytics. | `spring-boot-starter-data-jpa`, `postgresql` |
+| **`video-service`** | `8084` | Manages video catalogs, categories, search, and metadata. | `spring-boot-starter-data-jpa`, `postgresql` |
+| **`upload-service`** | `8085` | Handles file storage, chunk uploads, and video binaries. | `spring-boot-starter-web`, `eureka-client` |
+| **`streaming-service`** | `8086` | Serves adaptive streams for video playback. | `spring-boot-starter-web`, `eureka-client` |
+| **`analytics-service`** | `8087` | Tracks views, likes, comments, and engagement metrics. | `spring-boot-starter-data-jpa`, `postgresql` |
 
 ---
 
@@ -62,47 +63,45 @@ Every microservice is a standalone Maven module located under the `backend/` dir
 ### Prerequisites
 
 - **JDK 21** or higher installed.
-- **Maven 3.9+** installed (or use the included wrapper `./mvnw` / `mvnw.cmd`).
-- Running instance of **PostgreSQL** configured (default ports, username/password as required by service properties).
+- Running instance of **PostgreSQL** configured (default port `5432`, username `postgres`, password `Jiban@123`).
+
+### Database Creation
+Make sure you create the following databases in your PostgreSQL instance before starting:
+* `video_stream_auth`
+* `video_stream_user`
+* `video_stream_video`
+* `video_stream_analytics`
 
 ### Running Locally
 
-To start the backend ecosystem, you must launch the services in order (Discovery first, then configuration/gateways, and finally the domain services):
+To start the backend ecosystem in one command:
 
-1. **Start Eureka Server:**
-   ```bash
-   cd eureka-server
-   ./mvnw spring-boot:run
-   ```
-   *Verify dashboard is running at http://localhost:8761/*
-
-2. **Start API Gateway:**
-   ```bash
-   cd ../api-gateway
-   ./mvnw spring-boot:run
-   ```
-
-3. **Start Security & Services:**
-   Start the rest of the services as needed:
-   ```bash
-   # Authentication
-   cd ../auth-service && ./mvnw spring-boot:run
-   
-   # Core domain services
-   cd ../user-service && ./mvnw spring-boot:run
-   cd ../video-service && ./mvnw spring-boot:run
-   cd ../upload-service && ./mvnw spring-boot:run
-   cd ../streaming-service && ./mvnw spring-boot:run
-   cd ../analytics-service && ./mvnw spring-boot:run
+1. Open PowerShell in the `backend/` directory.
+2. Run the startup script:
+   ```powershell
+   .\run-all.ps1
    ```
 
 ---
 
 ## ⚙️ Building the Code
 
-To compile, test, and package all services into executable JARs, run the Maven compile phase:
+To rebuild all microservices at once using the Maven wrapper:
 
-```bash
-mvn clean package -DskipTests
+```powershell
+Get-ChildItem -Directory | ForEach-Object {
+    if (Test-Path (Join-Path $_.FullName "mvnw.cmd")) {
+        Write-Host "Building $_..." -ForegroundColor Green
+        Push-Location $_.FullName
+        .\mvnw.cmd clean install -DskipTests
+        Pop-Location
+    }
+}
 ```
-The output JAR files will be generated in the respective target/ directories of each subproject.
+
+---
+
+## 📖 API Documentation & Swagger UI
+We have centralized Swagger UI at the Gateway. Once all microservices are running:
+1. Open **`http://localhost:8082/swagger-ui/index.html`** in your browser.
+2. Use the dropdown menu in the header to switch and view endpoints for specific services (e.g. `Auth Service`, `User Service`).
