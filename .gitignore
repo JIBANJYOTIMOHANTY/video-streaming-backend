@@ -1,0 +1,5 @@
+# Ignore the startup script
+run-all.ps1
+
+# Ignore all local environment variable configuration files containing secrets
+**/.env
