@@ -10,7 +10,7 @@ import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
 
-import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.uri;
+import static org.springframework.cloud.gateway.server.mvc.filter.LoadBalancerFilterFunctions.lb;
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
 
@@ -39,27 +39,27 @@ public class GatewayConfig implements WebMvcConfigurer {
         public RouterFunction<ServerResponse> apiGatewayRoutes() {
                 return route("auth-service")
                                 .route(RequestPredicates.path("/api/v1/auth/**"), http())
-                                .before(uri("lb://AUTH-SERVICE"))
+                                .filter(lb("AUTH-SERVICE"))
                                 .build()
                                 .and(route("user-service")
                                                 .route(RequestPredicates.path("/api/v1/users/**"), http())
-                                                .before(uri("lb://USER-SERVICE"))
+                                                .filter(lb("USER-SERVICE"))
                                                 .build())
                                 .and(route("video-service")
                                                 .route(RequestPredicates.path("/api/v1/videos/**"), http())
-                                                .before(uri("lb://VIDEO-SERVICE"))
+                                                .filter(lb("VIDEO-SERVICE"))
                                                 .build())
                                 .and(route("upload-service")
                                                 .route(RequestPredicates.path("/api/v1/upload/**"), http())
-                                                .before(uri("lb://UPLOAD-SERVICE"))
+                                                .filter(lb("UPLOAD-SERVICE"))
                                                 .build())
                                 .and(route("streaming-service")
                                                 .route(RequestPredicates.path("/api/v1/stream/**"), http())
-                                                .before(uri("lb://STREAMING-SERVICE"))
+                                                .filter(lb("STREAMING-SERVICE"))
                                                 .build())
                                 .and(route("analytics-service")
                                                 .route(RequestPredicates.path("/api/v1/analytics/**"), http())
-                                                .before(uri("lb://ANALYTICS-SERVICE"))
+                                                .filter(lb("ANALYTICS-SERVICE"))
                                                 .build());
         }
 }

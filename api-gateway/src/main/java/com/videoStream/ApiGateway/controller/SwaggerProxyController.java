@@ -44,15 +44,35 @@ public class SwaggerProxyController {
     }
 
     @GetMapping("/{serviceName}")
+    @SuppressWarnings("unchecked")
     public ResponseEntity<Object> proxySwaggerDocs(@PathVariable String serviceName) {
         String eurekaId = SERVICE_MAP.get(serviceName);
         if (eurekaId == null) {
             return ResponseEntity.notFound().build();
         }
         try {
-            return restTemplate.getForEntity(
+            Map<String, Object> docs = restTemplate.getForObject(
                     "http://" + eurekaId + "/v3/api-docs",
-                    Object.class);
+                    Map.class);
+            if (docs != null) {
+                docs.put("servers", java.util.List.of(Map.of("url", "/")));
+                
+                // Inject JWT Bearer authorization components into Swagger UI dynamically
+                @SuppressWarnings("unchecked")
+                Map<String, Object> components = (Map<String, Object>) docs.computeIfAbsent("components", k -> new java.util.HashMap<String, Object>());
+                
+                @SuppressWarnings("unchecked")
+                Map<String, Object> securitySchemes = (Map<String, Object>) components.computeIfAbsent("securitySchemes", k -> new java.util.HashMap<String, Object>());
+                
+                securitySchemes.put("BearerAuthentication", Map.of(
+                        "type", "http",
+                        "scheme", "bearer",
+                        "bearerFormat", "JWT"
+                ));
+                
+                docs.put("security", java.util.List.of(Map.of("BearerAuthentication", java.util.List.of())));
+            }
+            return ResponseEntity.ok(docs);
         } catch (HttpClientErrorException e) {
             return ResponseEntity.status(e.getStatusCode()).build();
         } catch (Exception e) {
