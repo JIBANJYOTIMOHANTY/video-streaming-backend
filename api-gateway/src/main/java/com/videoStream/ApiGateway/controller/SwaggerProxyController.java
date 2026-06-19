@@ -13,11 +13,15 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 
 /**
- * Proxies Swagger/OpenAPI JSON from each downstream service through the gateway.
- * The Swagger UI (served at /swagger-ui.html) fetches /v3/api-docs/{service-name},
- * which this controller resolves via Eureka and forwards to the real service's /v3/api-docs.
+ * Proxies Swagger/OpenAPI JSON from each downstream service through the
+ * gateway.
+ * The Swagger UI (served at /swagger-ui.html) fetches
+ * /v3/api-docs/{service-name},
+ * which this controller resolves via Eureka and forwards to the real service's
+ * /v3/api-docs.
  *
- * @Hidden prevents this controller from being included in the gateway's own OpenAPI spec.
+ * @Hidden prevents this controller from being included in the gateway's own
+ *         OpenAPI spec.
  */
 @Hidden
 @RestController
@@ -26,16 +30,18 @@ public class SwaggerProxyController {
 
     /** Maps URL path segments to Eureka service IDs */
     private static final Map<String, String> SERVICE_MAP = Map.of(
-            "auth-service",      "AUTH-SERVICE",
-            "user-service",      "USER-SERVICE",
-            "video-service",     "VIDEO-SERVICE",
-            "upload-service",    "UPLOAD-SERVICE",
+            "auth-service", "AUTH-SERVICE",
+            "user-service", "USER-SERVICE",
+            "video-service", "VIDEO-SERVICE",
+            "upload-service", "UPLOAD-SERVICE",
             "streaming-service", "STREAMING-SERVICE",
-            "analytics-service", "ANALYTICS-SERVICE"
-    );
+            "analytics-service", "ANALYTICS-SERVICE");
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
+
+    public SwaggerProxyController(@Autowired RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     @GetMapping("/{serviceName}")
     public ResponseEntity<Object> proxySwaggerDocs(@PathVariable String serviceName) {
@@ -46,8 +52,7 @@ public class SwaggerProxyController {
         try {
             return restTemplate.getForEntity(
                     "http://" + eurekaId + "/v3/api-docs",
-                    Object.class
-            );
+                    Object.class);
         } catch (HttpClientErrorException e) {
             return ResponseEntity.status(e.getStatusCode()).build();
         } catch (Exception e) {
