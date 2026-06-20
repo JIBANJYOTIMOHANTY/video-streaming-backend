@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ApiResponse<T> {
-    private String status;
+    private int status;
     private String message;
     private T data;
 
     public static <T> ApiResponse<T> success(String message, T data) {
         return ApiResponse.<T>builder()
-                .status("success")
+                .status(0)
                 .message(message)
                 .data(data)
                 .build();
@@ -24,7 +24,7 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> error(String message) {
         return ApiResponse.<T>builder()
-                .status("error")
+                .status(1)
                 .message(message)
                 .data(null)
                 .build();

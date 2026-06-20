@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class VideoApiResponse<T> {
-    private String status;
+    private int status;
     private String message;
     private T data;
 
     public static <T> VideoApiResponse<T> success(String message, T data) {
         return VideoApiResponse.<T>builder()
-                .status("success")
+                .status(0)
                 .message(message)
                 .data(data)
                 .build();
@@ -24,7 +24,7 @@ public class VideoApiResponse<T> {
 
     public static <T> VideoApiResponse<T> error(String message) {
         return VideoApiResponse.<T>builder()
-                .status("error")
+                .status(1)
                 .message(message)
                 .data(null)
                 .build();

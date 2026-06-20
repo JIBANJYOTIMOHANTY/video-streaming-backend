@@ -19,26 +19,26 @@ public class UploadController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> uploadVideo(
+    public ResponseEntity<Map<String, Object>> uploadVideo(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "description", required = false) String description) {
         
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
+            return ResponseEntity.badRequest().body(Map.of("status", 1, "error", "File is empty"));
         }
 
         try {
             String fileUrl = storageService.storeVideo(file);
-            Map<String, String> response = new HashMap<>();
-            response.put("status", "success");
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", 0);
             response.put("videoUrl", fileUrl);
             response.put("title", title);
             response.put("description", description);
             
             return ResponseEntity.ok(response);
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to store file: " + e.getMessage()));
+            return ResponseEntity.internalServerError().body(Map.of("status", 1, "error", "Failed to store file: " + e.getMessage()));
         }
     }
 }
