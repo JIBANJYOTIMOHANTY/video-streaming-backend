@@ -55,7 +55,26 @@ public class SwaggerProxyController {
                     "http://" + eurekaId + "/v3/api-docs",
                     Map.class);
             if (docs != null) {
-                docs.put("servers", java.util.List.of(Map.of("url", "/")));
+                docs.put("servers", java.util.List.of(Map.of("url", "/api/v1")));
+                
+                // Rewrite paths to strip "/api/v1" prefix so that /api/v1 serves as the base URL
+                @SuppressWarnings("unchecked")
+                Map<String, Object> paths = (Map<String, Object>) docs.get("paths");
+                if (paths != null) {
+                    java.util.Map<String, Object> newPaths = new java.util.LinkedHashMap<>();
+                    for (Map.Entry<String, Object> entry : paths.entrySet()) {
+                        String oldPath = entry.getKey();
+                        String newPath = oldPath;
+                        if (oldPath.startsWith("/api/v1/")) {
+                            newPath = oldPath.substring(7); // "/api/v1/foo" -> "/foo"
+                        } else if (oldPath.equals("/api/v1")) {
+                            newPath = "/";
+                        }
+                        newPaths.put(newPath, entry.getValue());
+                    }
+                    docs.put("paths", newPaths);
+                }
+                
                 
                 // Inject JWT Bearer authorization components into Swagger UI dynamically
                 @SuppressWarnings("unchecked")
