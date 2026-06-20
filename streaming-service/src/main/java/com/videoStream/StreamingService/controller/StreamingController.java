@@ -29,6 +29,7 @@ public class StreamingController {
 
         if (headers.getRange().isEmpty()) {
             return ResponseEntity.ok()
+                    .header(HttpHeaders.ACCEPT_RANGES, "bytes")
                     .contentType(mediaType)
                     .body(videoResource);
         }
@@ -36,6 +37,7 @@ public class StreamingController {
         ResourceRegion region = streamingService.getVideoRegion(fileName, headers);
 
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+                .header(HttpHeaders.ACCEPT_RANGES, "bytes")
                 .contentType(mediaType)
                 .body(region);
     }

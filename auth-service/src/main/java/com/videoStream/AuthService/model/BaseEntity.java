@@ -4,19 +4,25 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @MappedSuperclass
 @Data
 public abstract class BaseEntity {
 
+    @JsonIgnore
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 
+    @JsonIgnore
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 

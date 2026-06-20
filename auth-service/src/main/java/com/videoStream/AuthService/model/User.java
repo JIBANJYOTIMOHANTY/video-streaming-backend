@@ -3,6 +3,8 @@ package com.videoStream.AuthService.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "users")
 @Data
@@ -11,6 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class User extends BaseEntity {
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
