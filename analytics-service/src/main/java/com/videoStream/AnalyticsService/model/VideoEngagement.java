@@ -1,6 +1,5 @@
 package com.videoStream.AnalyticsService.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +12,6 @@ import lombok.*;
 @Builder
 public class VideoEngagement extends BaseEntity {
 
-    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

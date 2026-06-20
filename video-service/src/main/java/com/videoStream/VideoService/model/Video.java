@@ -13,7 +13,6 @@ import lombok.*;
 @Builder
 public class Video extends BaseEntity {
 
-    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

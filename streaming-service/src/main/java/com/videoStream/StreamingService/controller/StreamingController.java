@@ -19,7 +19,7 @@ public class StreamingController {
     }
 
     @GetMapping("/{fileName:.+}")
-    public ResponseEntity<?> streamVideo(
+    public ResponseEntity<ResourceRegion> streamVideo(
             @PathVariable String fileName,
             @RequestHeader HttpHeaders headers) throws IOException {
 
@@ -28,10 +28,12 @@ public class StreamingController {
                 .orElse(MediaType.parseMediaType("video/mp4"));
 
         if (headers.getRange().isEmpty()) {
+            long contentLength = videoResource.contentLength();
+            ResourceRegion region = new ResourceRegion(videoResource, 0, contentLength);
             return ResponseEntity.ok()
                     .header(HttpHeaders.ACCEPT_RANGES, "bytes")
                     .contentType(mediaType)
-                    .body(videoResource);
+                    .body(region);
         }
 
         ResourceRegion region = streamingService.getVideoRegion(fileName, headers);

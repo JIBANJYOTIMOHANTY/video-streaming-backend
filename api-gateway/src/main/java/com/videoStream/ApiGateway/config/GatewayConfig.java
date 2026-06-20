@@ -31,6 +31,7 @@ public class GatewayConfig implements WebMvcConfigurer {
                                 .allowedOrigins("http://localhost:4200", "http://localhost:4201")
                                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                                 .allowedHeaders("*")
+                                .exposedHeaders("Content-Range", "Accept-Ranges", "Content-Length", "Content-Type")
                                 .allowCredentials(true);
         }
 

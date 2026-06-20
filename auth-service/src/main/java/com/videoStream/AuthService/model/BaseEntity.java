@@ -5,9 +5,11 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @MappedSuperclass
 @Data
+@JsonIgnoreProperties({"createdAt", "updatedAt", "active", "deleted", "isActive", "isDeleted"})
 public abstract class BaseEntity {
 
     @JsonIgnore
