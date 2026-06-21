@@ -69,4 +69,18 @@ public class AuthController {
         }
         return ResponseEntity.status(401).body(ApiResponse.error("Token is invalid"));
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestParam("token") String token) {
+        boolean isValid = jwtUtils.validateToken(token);
+        if (isValid) {
+            String username = jwtUtils.getUsernameFromToken(token);
+            String newToken = jwtUtils.generateToken(username);
+            AuthResponse response = new AuthResponse();
+            response.setToken(newToken);
+            response.setUsername(username);
+            return ResponseEntity.ok(ApiResponse.success("Token refreshed successfully", response));
+        }
+        return ResponseEntity.status(401).body(ApiResponse.error("Token is expired or invalid"));
+    }
 }

@@ -17,11 +17,10 @@ import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFuncti
 @Configuration
 public class GatewayConfig implements WebMvcConfigurer {
 
-        // ─── Load-balanced RestTemplate (used by SwaggerProxyController) ───────────
-        @Bean
-        @LoadBalanced
-        public RestTemplate restTemplate() {
-                return new RestTemplate();
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+        public GatewayConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+                this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         }
 
         // ─── CORS ───────────────────────────────────────────────────────────────────
@@ -52,6 +51,7 @@ public class GatewayConfig implements WebMvcConfigurer {
                                                 .build())
                                 .and(route("upload-service")
                                                 .route(RequestPredicates.path("/api/v1/upload/**"), http())
+                                                .filter(jwtAuthenticationFilter)
                                                 .filter(lb("UPLOAD-SERVICE"))
                                                 .build())
                                 .and(route("streaming-service")
