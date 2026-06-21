@@ -16,6 +16,9 @@ public class LocalStorageService implements VideoStorageService {
     @Value("${storage.local.path}")
     private String localPath;
 
+    @Value("${storage.thumbnail.path}")
+    private String thumbnailPath;
+
     @Override
     public String storeVideo(MultipartFile file) throws IOException {
         // Ensure upload directory exists
@@ -33,5 +36,24 @@ public class LocalStorageService implements VideoStorageService {
 
         // Return path reference (relative path for streaming/playback service)
         return "/api/v1/stream/" + fileName;
+    }
+
+    @Override
+    public String storeThumbnail(MultipartFile file) throws IOException {
+        // Ensure upload directory exists
+        Path uploadDirPath = Paths.get(thumbnailPath);
+        if (!Files.exists(uploadDirPath)) {
+            Files.createDirectories(uploadDirPath);
+        }
+
+        // Generate a unique file name to avoid collisions
+        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        Path filePath = uploadDirPath.resolve(fileName);
+
+        // Save file bytes to the local directory
+        Files.write(filePath, file.getBytes());
+
+        // Return path reference (relative path for streaming/playback service)
+        return "/api/v1/stream/thumbnail/" + fileName;
     }
 }

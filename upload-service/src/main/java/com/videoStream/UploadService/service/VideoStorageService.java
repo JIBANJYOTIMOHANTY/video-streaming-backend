@@ -5,4 +5,5 @@ import java.io.IOException;
 
 public interface VideoStorageService {
     String storeVideo(MultipartFile file) throws IOException;
+    String storeThumbnail(MultipartFile file) throws IOException;
 }

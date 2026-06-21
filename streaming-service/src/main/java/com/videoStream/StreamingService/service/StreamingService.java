@@ -9,4 +9,5 @@ import java.io.IOException;
 public interface StreamingService {
     Resource getVideoResource(String fileName);
     ResourceRegion getVideoRegion(String fileName, HttpHeaders headers) throws IOException;
+    Resource getThumbnailResource(String fileName);
 }

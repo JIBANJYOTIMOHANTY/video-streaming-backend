@@ -18,6 +18,16 @@ public class StreamingController {
         this.streamingService = streamingService;
     }
 
+    @GetMapping("/thumbnail/{fileName:.+}")
+    public ResponseEntity<Resource> getThumbnail(@PathVariable String fileName) {
+        Resource resource = streamingService.getThumbnailResource(fileName);
+        MediaType mediaType = MediaTypeFactory.getMediaType(resource)
+                .orElse(MediaType.IMAGE_PNG);
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .body(resource);
+    }
+
     @GetMapping("/{fileName:.+}")
     public ResponseEntity<ResourceRegion> streamVideo(
             @PathVariable String fileName,

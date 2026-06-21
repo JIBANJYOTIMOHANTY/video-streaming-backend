@@ -20,6 +20,9 @@ public class StreamingServiceImpl implements StreamingService {
     @Value("${storage.local.path}")
     private String localPath;
 
+    @Value("${storage.thumbnail.path}")
+    private String thumbnailPath;
+
     @Override
     public Resource getVideoResource(String fileName) {
         File videoFile = Paths.get(localPath).resolve(fileName).toFile();
@@ -27,6 +30,15 @@ public class StreamingServiceImpl implements StreamingService {
             throw new VideoNotFoundException("Video file not found: " + fileName);
         }
         return new FileSystemResource(videoFile);
+    }
+
+    @Override
+    public Resource getThumbnailResource(String fileName) {
+        File thumbnailFile = Paths.get(thumbnailPath).resolve(fileName).toFile();
+        if (!thumbnailFile.exists()) {
+            throw new VideoNotFoundException("Thumbnail file not found: " + fileName);
+        }
+        return new FileSystemResource(thumbnailFile);
     }
 
     @Override

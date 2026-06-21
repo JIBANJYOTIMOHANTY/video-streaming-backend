@@ -21,6 +21,7 @@ public class UploadController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> uploadVideo(
             @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "thumbnail", required = false) MultipartFile thumbnail,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "description", required = false) String description) {
         
@@ -35,6 +36,11 @@ public class UploadController {
             response.put("videoUrl", fileUrl);
             response.put("title", title);
             response.put("description", description);
+            
+            if (thumbnail != null && !thumbnail.isEmpty()) {
+                String thumbnailUrl = storageService.storeThumbnail(thumbnail);
+                response.put("thumbnailUrl", thumbnailUrl);
+            }
             
             return ResponseEntity.ok(response);
         } catch (IOException e) {
