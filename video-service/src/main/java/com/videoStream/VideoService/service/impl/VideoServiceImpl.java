@@ -22,7 +22,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public List<Video> getAllVideos() {
-        return videoRepository.findByIsActiveTrueAndIsDeletedFalseAndStatus(VideoStatus.READY);
+        return videoRepository.findActivePublicVideos(VideoStatus.READY);
     }
 
     @Override
@@ -52,6 +52,10 @@ public class VideoServiceImpl implements VideoService {
                 .userId(request.getUserId())
                 .status(request.getStatus() != null ? VideoStatus.fromValue(request.getStatus()) : VideoStatus.PROCESSING)
                 .views(0)
+                .visibility(request.getVisibility() != null ? request.getVisibility().toUpperCase() : "PUBLIC")
+                .autoSubtitles(request.getAutoSubtitles() != null ? request.getAutoSubtitles() : false)
+                .interactiveCards(request.getInteractiveCards() != null ? request.getInteractiveCards() : false)
+                .copyrightPassed(request.getCopyrightPassed() != null ? request.getCopyrightPassed() : true)
                 .build();
         return videoRepository.save(video);
     }
@@ -67,6 +71,10 @@ public class VideoServiceImpl implements VideoService {
         if (request.getThumbnailUrl() != null) video.setThumbnailUrl(request.getThumbnailUrl());
         if (request.getVideoUrl() != null) video.setVideoUrl(request.getVideoUrl());
         if (request.getStatus() != null) video.setStatus(VideoStatus.fromValue(request.getStatus()));
+        if (request.getVisibility() != null) video.setVisibility(request.getVisibility().toUpperCase());
+        if (request.getAutoSubtitles() != null) video.setAutoSubtitles(request.getAutoSubtitles());
+        if (request.getInteractiveCards() != null) video.setInteractiveCards(request.getInteractiveCards());
+        if (request.getCopyrightPassed() != null) video.setCopyrightPassed(request.getCopyrightPassed());
 
         return videoRepository.save(video);
     }

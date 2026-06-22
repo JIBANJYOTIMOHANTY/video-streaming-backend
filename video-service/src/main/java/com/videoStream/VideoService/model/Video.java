@@ -37,4 +37,20 @@ public class Video extends BaseEntity {
 
     @Builder.Default
     private int views = 0;
+
+    @Column(name = "visibility")
+    @Builder.Default
+    private String visibility = "PUBLIC";
+
+    @Column(name = "auto_subtitles")
+    @Builder.Default
+    private Boolean autoSubtitles = false;
+
+    @Column(name = "interactive_cards")
+    @Builder.Default
+    private Boolean interactiveCards = false;
+
+    @Column(name = "copyright_passed")
+    @Builder.Default
+    private Boolean copyrightPassed = true;
 }

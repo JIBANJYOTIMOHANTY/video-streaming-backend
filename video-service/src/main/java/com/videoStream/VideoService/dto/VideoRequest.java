@@ -14,4 +14,8 @@ public class VideoRequest {
     private String thumbnailUrl;
     private String userId;
     private String status;
+    private String visibility;
+    private Boolean autoSubtitles;
+    private Boolean interactiveCards;
+    private Boolean copyrightPassed;
 }
