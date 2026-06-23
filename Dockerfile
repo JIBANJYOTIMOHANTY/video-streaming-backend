@@ -2,7 +2,15 @@
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
-RUN mvn clean package -DskipTests
+# Build each service individually
+RUN cd eureka-server && mvn clean package -DskipTests
+RUN cd api-gateway && mvn clean package -DskipTests
+RUN cd auth-service && mvn clean package -DskipTests
+RUN cd user-service && mvn clean package -DskipTests
+RUN cd video-service && mvn clean package -DskipTests
+RUN cd upload-service && mvn clean package -DskipTests
+RUN cd streaming-service && mvn clean package -DskipTests
+RUN cd analytics-service && mvn clean package -DskipTests
 
 # Stage 2: JRE runtime stage
 FROM eclipse-temurin:21-jre-jammy
